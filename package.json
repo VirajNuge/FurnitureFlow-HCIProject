@@ -1,0 +1,12 @@
+{
+  "name": "furniture-flow",
+  "version": "0.1.0",
+  "description": "FurnitureFlow - MERN Stack room planner",
+  "private": true,
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "keywords": ["furniture", "room", "3d"],
+  "author": "VirajNuge",
+  "license": "MIT"
+}
