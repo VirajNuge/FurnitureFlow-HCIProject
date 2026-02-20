@@ -1,12 +1,18 @@
 {
   "name": "furniture-flow",
   "version": "0.1.0",
-  "description": "FurnitureFlow - MERN Stack room planner",
+  "description": "FurnitureFlow (RoomVista 3D) - MERN Stack App",
   "private": true,
   "scripts": {
-    "start": "node server/index.js"
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
-  "keywords": ["furniture", "room", "3d"],
+  "keywords": ["furniture", "room", "3d", "mern"],
   "author": "VirajNuge",
-  "license": "MIT"
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
 }
