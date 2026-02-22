@@ -2,11 +2,16 @@ import mongoose from 'mongoose';
 
 const furnitureSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  type: { type: String, required: true },
+  type: {
+    type: String,
+    enum: ['chair', 'table', 'sofa', 'bed', 'shelf', 'lamp'],
+    required: true,
+  },
   width: { type: Number, required: true },
   height: { type: Number, required: true },
   depth: { type: Number, required: true },
   defaultColor: { type: String, default: '#cccccc' },
+  modelURL: { type: String, default: '' },
 }, { timestamps: true });
 
 const Furniture = mongoose.model('Furniture', furnitureSchema);
