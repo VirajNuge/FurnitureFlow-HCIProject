@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
@@ -7,6 +8,10 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
+app.use(cors({
+  origin: ['http://localhost:5173', process.env.CLIENT_URL].filter(Boolean),
+  credentials: true,
+}));
 app.use(express.json());
 
 // MongoDB Connection
