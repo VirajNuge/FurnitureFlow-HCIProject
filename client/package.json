@@ -15,7 +15,9 @@
     "zustand": "^4.4.6",
     "three": "^0.159.0",
     "@react-three/fiber": "^8.15.11",
-    "@react-three/drei": "^9.92.7"
+    "@react-three/drei": "^9.92.7",
+    "konva": "^9.2.3",
+    "react-konva": "^18.2.10"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.0",
