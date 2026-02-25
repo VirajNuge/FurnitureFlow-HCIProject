@@ -14,3 +14,24 @@ cd client && npm install
 cd ../server && npm install
 npm run dev
 ```
+
+## API Endpoints
+
+### Auth
+- `POST /api/auth/register` — Register a new user
+- `POST /api/auth/login` — Login and receive JWT token
+
+### Designs
+- `GET /api/designs` — List all designs for authenticated user
+- `POST /api/designs` — Save a new design
+- `GET /api/designs/:id` — Load a single design
+- `PUT /api/designs/:id` — Update an existing design
+- `DELETE /api/designs/:id` — Delete a design
+
+### Feedback
+- `POST /api/feedback` — Submit user feedback
+- `GET /api/feedback` — Get all feedback (admin)
+
+### Rooms
+- `POST /api/rooms` — Create a room
+- `GET /api/rooms/:id` — Get room details
