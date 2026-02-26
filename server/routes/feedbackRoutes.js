@@ -1,14 +1,10 @@
 import express from 'express';
+import { submitFeedback, getFeedback } from '../controllers/feedbackController.js';
+import { protect } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
 
-// POST /api/feedback
-router.post('/', (req, res) => {
-  res.status(201).json({ message: 'Feedback received' });
-});
-
-// GET /api/feedback
-router.get('/', (req, res) => {
-  res.json([]);
-});
+router.post('/', protect, submitFeedback);
+router.get('/', protect, getFeedback);
 
 export default router;

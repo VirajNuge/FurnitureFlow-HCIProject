@@ -13,7 +13,16 @@ export const submitFeedback = async (req, res) => {
 
 export const getFeedback = async (req, res) => {
   try {
-    const list = await Feedback.find({});
+    const list = await Feedback.find({}).sort({ createdAt: -1 });
+    res.json(list);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getAdminFeedback = async (req, res) => {
+  try {
+    const list = await Feedback.find({}).populate('userId', 'name email').sort({ createdAt: -1 });
     res.json(list);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
