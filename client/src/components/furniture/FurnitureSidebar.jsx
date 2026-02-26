@@ -11,30 +11,43 @@ const CATALOGUE = [
 
 const FurnitureSidebar = ({ onDragStart }) => {
   return (
-    <div style={{ padding: '1rem', borderRight: '1px solid #e5e7eb', width: '200px', overflowY: 'auto' }}>
-      <h3 style={{ marginBottom: '1rem', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
-        Furniture Catalogue
+    <div style={{
+      padding: '1rem',
+      borderRight: '1px solid #e5e7eb',
+      width: '200px',
+      overflowY: 'auto',
+      background: '#fff',
+    }}>
+      <h3 style={{ marginBottom: '0.75rem', fontSize: '13px', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        Catalogue
       </h3>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {CATALOGUE.map((item) => (
           <li
             key={item.type}
             draggable
-            onDragStart={() => onDragStart && onDragStart(item)}
+            onDragStart={(e) => {
+              e.dataTransfer.setData('furnitureType', JSON.stringify(item));
+              onDragStart && onDragStart(item);
+            }}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              padding: '0.5rem',
-              marginBottom: '0.5rem',
+              padding: '0.6rem 0.5rem',
+              marginBottom: '0.4rem',
               border: '1px solid #e5e7eb',
               borderRadius: '6px',
               cursor: 'grab',
               background: '#f9fafb',
+              userSelect: 'none',
             }}
           >
-            <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
-            <span style={{ fontSize: '13px', color: '#374151' }}>{item.label}</span>
+            <span style={{ fontSize: '1.3rem', lineHeight: 1 }}>{item.icon}</span>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#111827' }}>{item.label}</div>
+              <div style={{ fontSize: '11px', color: '#9ca3af' }}>{item.w} × {item.h} cm</div>
+            </div>
           </li>
         ))}
       </ul>
