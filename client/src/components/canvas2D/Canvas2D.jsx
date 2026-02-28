@@ -5,6 +5,9 @@ import RoomBoundary from './RoomBoundary';
 const CANVAS_W = 800;
 const CANVAS_H = 600;
 const ROOM = { x: 50, y: 50, width: 700, height: 500 };
+const GRID = 20;
+
+const snap = (v) => Math.round(v / GRID) * GRID;
 
 const Canvas2D = () => {
   const stageRef = useRef(null);
@@ -15,10 +18,9 @@ const Canvas2D = () => {
     const raw = e.dataTransfer.getData('furnitureType');
     if (!raw) return;
     const item = JSON.parse(raw);
-    const stage = stageRef.current;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = snap(e.clientX - rect.left);
+    const y = snap(e.clientY - rect.top);
     setItems((prev) => [
       ...prev,
       { ...item, id: Date.now(), x, y },
