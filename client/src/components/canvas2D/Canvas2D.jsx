@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Stage, Layer } from 'react-konva';
 import RoomBoundary from './RoomBoundary';
+import FurnitureNode from './FurnitureNode';
 
 const CANVAS_W = 800;
 const CANVAS_H = 600;
@@ -9,9 +10,14 @@ const GRID = 20;
 
 const snap = (v) => Math.round(v / GRID) * GRID;
 
+const overlaps = (a, b) =>
+  a.x < b.x + b.w && a.x + a.w > b.x &&
+  a.y < b.y + b.h && a.y + a.h > b.y;
+
 const Canvas2D = () => {
   const stageRef = useRef(null);
   const [items, setItems] = useState([]);
+  const [selected, setSelected] = useState(null);
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -21,10 +27,15 @@ const Canvas2D = () => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = snap(e.clientX - rect.left);
     const y = snap(e.clientY - rect.top);
-    setItems((prev) => [
-      ...prev,
-      { ...item, id: Date.now(), x, y },
-    ]);
+    const candidate = { ...item, id: Date.now(), x, y };
+    const collision = items.some((i) => overlaps(candidate, i));
+    if (!collision) setItems((prev) => [...prev, candidate]);
+  };
+
+  const handleDragEnd = (id, nx, ny) => {
+    setItems((prev) =>
+      prev.map((it) => (it.id === id ? { ...it, x: snap(nx), y: snap(ny) } : it))
+    );
   };
 
   return (
@@ -33,9 +44,18 @@ const Canvas2D = () => {
       onDrop={handleDrop}
       onDragOver={(e) => e.preventDefault()}
     >
-      <Stage width={CANVAS_W} height={CANVAS_H} ref={stageRef}>
+      <Stage width={CANVAS_W} height={CANVAS_H} ref={stageRef} onMouseDown={() => setSelected(null)}>
         <Layer>
           <RoomBoundary {...ROOM} />
+          {items.map((item) => (
+            <FurnitureNode
+              key={item.id}
+              item={item}
+              isSelected={selected === item.id}
+              onSelect={setSelected}
+              onDragEnd={handleDragEnd}
+            />
+          ))}
         </Layer>
       </Stage>
     </div>
