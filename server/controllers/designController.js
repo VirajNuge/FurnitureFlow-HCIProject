@@ -24,3 +24,12 @@ export const getDesign = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const listDesigns = async (req, res) => {
+  try {
+    const designs = await Design.find({ userId: req.user._id }).sort({ updatedAt: -1 });
+    res.json(designs);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
