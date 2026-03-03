@@ -1,7 +1,10 @@
 import express from 'express';
+import { createRoom, getRoom } from '../controllers/roomController.js';
+import { protect } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
 
-router.get('/', (req, res) => res.json([]));
-router.post('/', (req, res) => res.status(201).json({ message: 'room stub' }));
+router.post('/', protect, createRoom);
+router.get('/:id', protect, getRoom);
 
 export default router;
