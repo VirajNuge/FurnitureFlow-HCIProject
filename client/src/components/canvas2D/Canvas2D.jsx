@@ -10,6 +10,8 @@ const GRID = 20;
 
 const snap = (v) => Math.round(v / GRID) * GRID;
 
+const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
 const overlaps = (a, b) =>
   a.x < b.x + b.w && a.x + a.w > b.x &&
   a.y < b.y + b.h && a.y + a.h > b.y;
@@ -19,23 +21,29 @@ const Canvas2D = () => {
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(null);
 
+  const clampToRoom = (x, y, w, h) => ({
+    x: clamp(x, ROOM.x, ROOM.x + ROOM.width - w),
+    y: clamp(y, ROOM.y, ROOM.y + ROOM.height - h),
+  });
+
   const handleDrop = (e) => {
     e.preventDefault();
     const raw = e.dataTransfer.getData('furnitureType');
     if (!raw) return;
     const item = JSON.parse(raw);
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = snap(e.clientX - rect.left);
-    const y = snap(e.clientY - rect.top);
+    const { x, y } = clampToRoom(snap(e.clientX - rect.left), snap(e.clientY - rect.top), item.w, item.h);
     const candidate = { ...item, id: Date.now(), x, y };
-    const collision = items.some((i) => overlaps(candidate, i));
-    if (!collision) setItems((prev) => [...prev, candidate]);
+    if (!items.some((i) => overlaps(candidate, i))) {
+      setItems((prev) => [...prev, candidate]);
+    }
   };
 
   const handleDragEnd = (id, nx, ny) => {
-    setItems((prev) =>
-      prev.map((it) => (it.id === id ? { ...it, x: snap(nx), y: snap(ny) } : it))
-    );
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+    const { x, y } = clampToRoom(snap(nx), snap(ny), item.w, item.h);
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, x, y } : it)));
   };
 
   return (
