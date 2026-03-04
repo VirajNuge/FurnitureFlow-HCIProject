@@ -10,8 +10,9 @@ const furnitureSchema = new mongoose.Schema({
   width: { type: Number, required: true },
   height: { type: Number, required: true },
   depth: { type: Number, required: true },
-  defaultColor: { type: String, default: '#cccccc' },
+  defaultColor: { type: String, default: '#93c5fd' },
   modelURL: { type: String, default: '' },
+  tags: { type: [String], default: [] },
 }, { timestamps: true });
 
 const Furniture = mongoose.model('Furniture', furnitureSchema);
