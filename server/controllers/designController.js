@@ -34,6 +34,21 @@ export const listDesigns = async (req, res) => {
   }
 };
 
+export const updateDesign = async (req, res) => {
+  try {
+    const { name, furnitureItems, roomConfig } = req.body;
+    const design = await Design.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user._id },
+      { name, furnitureItems, roomConfig, updatedAt: new Date() },
+      { new: true }
+    );
+    if (!design) return res.status(404).json({ message: 'Design not found' });
+    res.json(design);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 export const deleteDesign = async (req, res) => {
   try {
     const design = await Design.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
