@@ -9,6 +9,17 @@ const cardStyle = {
   display: 'flex', flexDirection: 'column', gap: '0.75rem',
 };
 
+const SkeletonCard = () => (
+  <div style={{ ...cardStyle, animation: 'pulse 1.5s ease-in-out infinite' }}>
+    <div style={{ height: '18px', background: '#e5e7eb', borderRadius: '4px', width: '60%' }} />
+    <div style={{ height: '12px', background: '#f3f4f6', borderRadius: '4px', width: '40%' }} />
+    <div style={{ display: 'flex', gap: '0.5rem' }}>
+      <div style={{ flex: 1, height: '32px', background: '#eff6ff', borderRadius: '5px' }} />
+      <div style={{ width: '70px', height: '32px', background: '#fef2f2', borderRadius: '5px' }} />
+    </div>
+  </div>
+);
+
 const Dashboard = () => {
   const [designs, setDesigns] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,12 +42,6 @@ const Dashboard = () => {
     setDesigns((prev) => prev.filter((d) => d._id !== id));
   };
 
-  if (loading) return (
-    <div style={{ padding: '2rem' }}>
-      {[1, 2, 3].map((n) => <div key={n} style={{ height: '80px', background: '#f3f4f6', borderRadius: '8px', marginBottom: '1rem' }} />)}
-    </div>
-  );
-
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -45,7 +50,11 @@ const Dashboard = () => {
           + New Design
         </button>
       </div>
-      {designs.length === 0 ? (
+      {loading ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+          {[1, 2, 3, 4].map((n) => <SkeletonCard key={n} />)}
+        </div>
+      ) : designs.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '4rem', color: '#9ca3af' }}>
           <p>No saved designs yet.</p>
           <Link to="/designer">Create your first design →</Link>
