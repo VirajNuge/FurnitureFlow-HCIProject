@@ -1,8 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Stage, Layer } from 'react-konva';
 import RoomBoundary from './RoomBoundary';
 import FurnitureNode from './FurnitureNode';
 import PropertiesSidebar from '../ui/PropertiesSidebar';
+import useDesignStore from '../../store/designStore';
 
 const CANVAS_W = 800;
 const CANVAS_H = 600;
@@ -15,12 +16,11 @@ const overlaps = (a, b) =>
   a.x < b.x + b.w && a.x + a.w > b.x &&
   a.y < b.y + b.h && a.y + a.h > b.y;
 
-const Canvas2D = () => {
+const Canvas2D = ({ selectedId, onSelect }) => {
   const stageRef = useRef(null);
-  const [items, setItems] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const { items, addItem, updateItem } = useDesignStore();
 
-  const selectedItem = items.find((i) => i.id === selected) || null;
+  const selectedItem = items.find((i) => i.id === selectedId) || null;
 
   const clampToRoom = (x, y, w, h) => ({
     x: clamp(x, ROOM.x, ROOM.x + ROOM.width - w),
@@ -35,18 +35,17 @@ const Canvas2D = () => {
     const rect = e.currentTarget.getBoundingClientRect();
     const { x, y } = clampToRoom(snap(e.clientX - rect.left), snap(e.clientY - rect.top), item.w, item.h);
     const candidate = { ...item, id: Date.now(), x, y, color: '#93c5fd' };
-    if (!items.some((i) => overlaps(candidate, i))) setItems((prev) => [...prev, candidate]);
+    if (!items.some((i) => overlaps(candidate, i))) addItem(candidate);
   };
 
   const handleDragEnd = (id, nx, ny) => {
     const item = items.find((i) => i.id === id);
     if (!item) return;
     const { x, y } = clampToRoom(snap(nx), snap(ny), item.w, item.h);
-    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, x, y } : it)));
+    updateItem(id, { x, y });
   };
 
-  const handleColorChange = (id, color) =>
-    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, color } : it)));
+  const handleColorChange = (id, color) => updateItem(id, { color });
 
   return (
     <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -55,15 +54,15 @@ const Canvas2D = () => {
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
       >
-        <Stage width={CANVAS_W} height={CANVAS_H} ref={stageRef} onMouseDown={() => setSelected(null)}>
+        <Stage width={CANVAS_W} height={CANVAS_H} ref={stageRef} onMouseDown={() => onSelect && onSelect(null)}>
           <Layer>
             <RoomBoundary {...ROOM} />
             {items.map((item) => (
               <FurnitureNode
                 key={item.id}
                 item={item}
-                isSelected={selected === item.id}
-                onSelect={setSelected}
+                isSelected={selectedId === item.id}
+                onSelect={onSelect}
                 onDragEnd={handleDragEnd}
               />
             ))}
