@@ -1,59 +1,100 @@
 import React, { useState } from 'react';
-import useToastStore from '../../store/toastStore';
+import { useToastStore } from '../../store/toastStore';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-const FeedbackModal = ({ onClose }) => {
+const FeedbackModal = ({ isOpen, onClose, designId }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const addToast = useToastStore((s) => s.addToast);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (rating === 0) { addToast('Please select a rating', 'error'); return; }
-    setLoading(true);
+    setError('');
+    if (rating === 0) { setError('Please select a star rating.'); return; }
+    if (comment.trim().length < 5) { setError('Comment must be at least 5 characters.'); return; }
+    setSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API}/api/feedback`, {
+      const res = await fetch('/api/feedback', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ rating, comment }),
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+        body: JSON.stringify({ designId, rating, comment }),
       });
-      if (!res.ok) throw new Error('Failed to submit');
-      addToast('Thank you for your feedback!');
-      onClose && onClose();
+      if (!res.ok) throw new Error('Submission failed');
+      addToast('Feedback submitted!', 'success');
+      setRating(0); setComment('');
+      onClose();
     } catch {
-      addToast('Could not submit feedback', 'error');
+      setError('Could not submit feedback. Please try again.');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-      <div style={{ background: '#fff', borderRadius: '8px', padding: '2rem', width: '400px' }}>
-        <h2 style={{ marginBottom: '1rem' }}>Leave Feedback</h2>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Rating</label>
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button type="button" key={n} onClick={() => setRating(n)}
-                  style={{ width: '36px', height: '36px', background: rating >= n ? '#f59e0b' : '#e5e7eb', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>
-                  ★
-                </button>
-              ))}
-            </div>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="feedback-title"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 animate-fadeIn"
+        style={{ animation: 'fadeInUp 0.2s ease-out' }}
+      >
+        <h2 id="feedback-title" className="text-xl font-semibold text-gray-800 mb-4">
+          Leave Feedback
+        </h2>
+
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="flex gap-2 mb-4" role="group" aria-label="Star rating">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setRating(s)}
+                className={`text-3xl transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${s <= rating ? 'text-amber-400' : 'text-gray-300'}`}
+                aria-label={`${s} star${s > 1 ? 's' : ''}`}
+              >
+                ★
+              </button>
+            ))}
           </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Comment</label>
-            <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3}
-              style={{ width: '100%', marginTop: '0.5rem', padding: '0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }} />
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-            <button type="button" onClick={onClose} disabled={loading}>Cancel</button>
-            <button type="submit" disabled={loading}>{loading ? 'Submitting…' : 'Submit'}</button>
+
+          <textarea
+            className="w-full border border-gray-200 rounded-lg p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+            rows={4}
+            placeholder="Share your thoughts about this design…"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            maxLength={500}
+          />
+          <p className="text-xs text-gray-400 text-right mt-1">{comment.length}/500</p>
+
+          {error && (
+            <p role="alert" className="text-red-500 text-sm mt-2">
+              {error}
+            </p>
+          )}
+
+          <div className="flex justify-end gap-3 mt-5">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-5 py-2 text-sm rounded-lg bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {submitting ? 'Submitting…' : 'Submit'}
+            </button>
           </div>
         </form>
       </div>
