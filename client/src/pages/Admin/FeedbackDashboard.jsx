@@ -1,69 +1,96 @@
 import React, { useEffect, useState } from 'react';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-const Stars = ({ rating }) => (
-  <span>
-    {[1, 2, 3, 4, 5].map((n) => (
-      <span key={n} style={{ color: n <= rating ? '#f59e0b' : '#d1d5db', fontSize: '16px' }}>★</span>
-    ))}
-  </span>
-);
+import { getFeedback } from '../../api/designerApi';
 
 const FeedbackDashboard = () => {
-  const [data, setData] = useState(null);
+  const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    fetch(`${API}/api/feedback/admin`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
-      .then((d) => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+    getFeedback()
+      .then(({ data }) => setFeedback(Array.isArray(data) ? data : []))
+      .catch(() => setError('Failed to load feedback.'))
+      .finally(() => setLoading(false));
   }, []);
 
-  const filtered = data?.feedback?.filter((f) => {
+  const filtered = feedback.filter((f) => {
     const d = new Date(f.createdAt);
     if (dateFrom && d < new Date(dateFrom)) return false;
-    if (dateTo && d > new Date(dateTo + 'T23:59:59')) return false;
+    if (dateTo && d > new Date(dateTo)) return false;
     return true;
-  }) || [];
+  });
 
-  if (loading) return <div style={{ padding: '2rem' }}>Loading…</div>;
-  if (!data) return <div style={{ padding: '2rem' }}>Failed to load feedback.</div>;
+  const avgRating =
+    filtered.length > 0
+      ? (filtered.reduce((sum, f) => sum + f.rating, 0) / filtered.length).toFixed(1)
+      : '—';
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+        Loading feedback…
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full text-red-500 text-sm">
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '0.5rem' }}>Feedback Dashboard</h1>
-      <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem' }}>
-        <div style={{ background: '#eff6ff', borderRadius: '8px', padding: '1rem 1.5rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '28px', fontWeight: '700' }}>{data.total}</div>
-          <div style={{ fontSize: '12px', color: '#6b7280' }}>Total responses</div>
+    <div className="p-6 max-w-5xl mx-auto">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Feedback Dashboard</h1>
+
+      <div className="flex gap-4 mb-6">
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">From</label>
+          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
+            className="border rounded-md px-3 py-1 text-sm" />
         </div>
-        <div style={{ background: '#fef9c3', borderRadius: '8px', padding: '1rem 1.5rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '28px', fontWeight: '700' }}>{data.averageRating ?? '—'}</div>
-          <div style={{ fontSize: '12px', color: '#6b7280' }}>Average rating</div>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">To</label>
+          <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
+            className="border rounded-md px-3 py-1 text-sm" />
+        </div>
+        <div className="self-end">
+          <button onClick={() => { setDateFrom(''); setDateTo(''); }}
+            className="text-sm text-indigo-600 hover:underline">
+            Clear
+          </button>
         </div>
       </div>
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center' }}>
-        <label style={{ fontSize: '13px' }}>From:</label>
-        <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ padding: '0.35rem 0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }} />
-        <label style={{ fontSize: '13px' }}>To:</label>
-        <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={{ padding: '0.35rem 0.5rem', borderRadius: '4px', border: '1px solid #d1d5db' }} />
-        {(dateFrom || dateTo) && <button onClick={() => { setDateFrom(''); setDateTo(''); }} style={{ fontSize: '12px', color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer' }}>Clear</button>}
+
+      <div className="mb-4 text-sm text-gray-600">
+        <span className="font-medium">{filtered.length}</span> entries &nbsp;|&nbsp;
+        Average rating: <span className="font-medium">{avgRating}</span>
       </div>
-      {filtered.map((f) => (
-        <div key={f._id} style={{ background: '#fff', borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '0.75rem', border: '1px solid #e5e7eb' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <strong>{f.userId?.name || 'Anonymous'}</strong>
-            <Stars rating={f.rating} />
-          </div>
-          {f.comment && <p style={{ marginTop: '0.4rem', fontSize: '13px', color: '#374151' }}>{f.comment}</p>}
-          <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '0.25rem' }}>{new Date(f.createdAt).toLocaleDateString()}</p>
+
+      {filtered.length === 0 ? (
+        <div className="text-center text-gray-400 text-sm py-16 border-2 border-dashed border-gray-200 rounded-xl">
+          No feedback found for the selected date range.
         </div>
-      ))}
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((f) => (
+            <div key={f._id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-amber-400 text-lg">{'★'.repeat(f.rating)}{'☆'.repeat(5 - f.rating)}</span>
+                <span className="text-xs text-gray-400">{new Date(f.createdAt).toLocaleDateString()}</span>
+              </div>
+              <p className="text-sm text-gray-700">{f.comment}</p>
+              {f.userId?.name && (
+                <p className="text-xs text-gray-400 mt-1">— {f.userId.name}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
