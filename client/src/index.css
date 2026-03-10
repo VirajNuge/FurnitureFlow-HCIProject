@@ -71,3 +71,44 @@ textarea:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
+
+/* ── High-contrast mode overrides ───────────────────────────────────── */
+@media (forced-colors: active) {
+  :root {
+    --color-primary: Highlight;
+    --color-bg: Canvas;
+    --color-surface: Canvas;
+    --color-border: ButtonText;
+    --color-text: ButtonText;
+    --color-muted: GrayText;
+  }
+
+  input, select, textarea {
+    border: 2px solid ButtonText;
+  }
+
+  button {
+    border: 2px solid ButtonText;
+    forced-color-adjust: none;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-border: #6b7280;
+    --color-muted: #374151;
+  }
+
+  input, select, textarea {
+    border-color: #374151;
+  }
+}
