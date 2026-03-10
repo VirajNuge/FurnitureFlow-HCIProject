@@ -1,29 +1,47 @@
-import express from 'express';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
 
-dotenv.config();
+const authRoutes = require('./routes/authRoutes');
+const roomRoutes = require('./routes/roomRoutes');
+const designRoutes = require('./routes/designRoutes');
+const furnitureRoutes = require('./routes/furnitureRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
 
 const app = express();
-const port = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: ['http://localhost:5173', process.env.CLIENT_URL].filter(Boolean),
-  credentials: true,
-}));
+app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
+/* ── Routes ─────────────────────────────────────────────────────────── */
+app.use('/api/auth', authRoutes);
+app.use('/api/rooms', roomRoutes);
+app.use('/api/designs', designRoutes);
+app.use('/api/furniture', furnitureRoutes);
+app.use('/api/feedback', feedbackRoutes);
+
+/* ── Error logging middleware ────────────────────────────────────────── */
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  const status = err.status || err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
+  console.error(`[ERROR] ${req.method} ${req.url} → ${status}: ${message}`);
+  if (process.env.NODE_ENV === 'development') {
+    console.error(err.stack);
+  }
+  res.status(status).json({ message });
+});
+
+/* ── DB + Start ──────────────────────────────────────────────────────── */
+const PORT = process.env.PORT || 5000;
 mongoose
-  .connect(process.env.MONGO_URI || 'mongodb://localhost:27017/furnitureflow')
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.log(err));
-
-app.get('/', (req, res) => {
-  res.send('Furniture Flow API is running');
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on port: ${port}`);
-});
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('MongoDB connected');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error('MongoDB connection failed:', err.message);
+    process.exit(1);
+  });
