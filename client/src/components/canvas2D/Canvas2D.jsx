@@ -4,6 +4,7 @@ import FurnitureNode from './FurnitureNode';
 import RoomBoundary from './RoomBoundary';
 import { useDesignStore } from '../../store/designStore';
 import useSnapGrid from '../../hooks/useSnapGrid';
+import useDrag from '../../hooks/useDrag';
 
 const GRID_SIZE = 20;
 const CANVAS_W = 800;
@@ -12,6 +13,7 @@ const CANVAS_H = 600;
 const Canvas2D = () => {
   const { furniture, room, updateFurniture, selectItem, selectedId } = useDesignStore();
   const { snapPoint } = useSnapGrid(GRID_SIZE);
+  const { isDragging, onDragStart, onDragEnd } = useDrag();
   const stageRef = useRef();
 
   const [selection, setSelection] = useState(null);
@@ -33,10 +35,8 @@ const Canvas2D = () => {
 
   const drawAxisLabels = () => (
     <>
-      {/* Width arrow + label */}
       <Arrow points={[10, rh + 20, rw - 10, rh + 20]} fill="#6b7280" stroke="#6b7280" strokeWidth={1} pointerLength={6} pointerWidth={5} />
       <Text x={rw / 2 - 25} y={rh + 24} text={`${room.width} cm`} fontSize={11} fill="#6b7280" />
-      {/* Depth arrow + label */}
       <Arrow points={[rw + 20, 10, rw + 20, rh - 10]} fill="#6b7280" stroke="#6b7280" strokeWidth={1} pointerLength={6} pointerWidth={5} />
       <Text x={rw + 24} y={rh / 2 - 10} text={`${room.depth} cm`} fontSize={11} fill="#6b7280" rotation={90} />
     </>
@@ -63,8 +63,7 @@ const Canvas2D = () => {
     const selBox = { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1) };
     if (selBox.w > 5 && selBox.h > 5) {
       const hit = furniture.filter((f) => {
-        const fx = f.x * scaleX, fy = f.y * scaleY;
-        const fw = f.width * scaleX, fh = f.height * scaleY;
+        const fx = f.x * scaleX, fy = f.y * scaleY, fw = f.width * scaleX, fh = f.height * scaleY;
         return fx < selBox.x + selBox.w && fx + fw > selBox.x && fy < selBox.y + selBox.h && fy + fh > selBox.y;
       });
       if (hit.length === 1) selectItem(hit[0].id);
@@ -82,7 +81,7 @@ const Canvas2D = () => {
     : null;
 
   return (
-    <div className="w-full h-full overflow-auto bg-gray-50 p-4">
+    <div className="w-full h-full overflow-auto bg-gray-50 p-4" style={{ cursor: isDragging ? 'grabbing' : 'default' }}>
       <Stage ref={stageRef} width={CANVAS_W} height={CANVAS_H}
         onMouseDown={handleStageMouseDown} onMouseMove={handleStageMouseMove} onMouseUp={handleStageMouseUp}>
         <Layer>
@@ -95,6 +94,8 @@ const Canvas2D = () => {
               item={{ ...f, x: f.x * scaleX, y: f.y * scaleY, width: f.width * scaleX, height: f.height * scaleY }}
               isSelected={f.id === selectedId}
               onSelect={() => selectItem(f.id)}
+              onDragStart={onDragStart}
+              onDragEnd={(e) => { onDragEnd(e); handleFurnitureChange({ ...f, x: e.target.x() / scaleX, y: e.target.y() / scaleY }); }}
               onChange={(u) => handleFurnitureChange({ ...u, x: u.x / scaleX, y: u.y / scaleY, width: u.width / scaleX, height: u.height / scaleY })}
             />
           ))}
