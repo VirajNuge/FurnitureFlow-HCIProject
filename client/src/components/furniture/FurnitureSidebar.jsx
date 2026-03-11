@@ -1,57 +1,89 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDesignStore } from '../../store/designStore';
+import { getFurnitureCatalog } from '../../api/designerApi';
 
-const CATALOGUE = [
-  { type: 'chair', label: 'Chair', icon: '🪑', w: 60, h: 60 },
-  { type: 'table', label: 'Table', icon: '🪵', w: 100, h: 60 },
-  { type: 'sofa', label: 'Sofa', icon: '🛋️', w: 140, h: 70 },
-  { type: 'bed', label: 'Bed', icon: '🛏️', w: 120, h: 200 },
-  { type: 'shelf', label: 'Shelf', icon: '📚', w: 80, h: 30 },
-  { type: 'lamp', label: 'Lamp', icon: '💡', w: 30, h: 30 },
-];
+const CATEGORIES = ['All', 'Seating', 'Tables', 'Storage', 'Beds', 'Lighting'];
 
-const FurnitureSidebar = ({ onDragStart }) => {
+const FurnitureSidebar = () => {
+  const [catalog, setCatalog] = useState([]);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All');
+  const addFurniture = useDesignStore((s) => s.addFurniture);
+
+  useEffect(() => {
+    getFurnitureCatalog()
+      .then(({ data }) => setCatalog(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  }, []);
+
+  const filtered = catalog.filter((item) => {
+    const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
+    const matchCategory = category === 'All' || item.category === category;
+    return matchSearch && matchCategory;
+  });
+
+  const handleAdd = (item) => {
+    addFurniture({
+      id: crypto.randomUUID(),
+      type: item.type,
+      label: item.name,
+      x: 50,
+      y: 50,
+      width: item.defaultWidth ?? 80,
+      height: item.defaultDepth ?? 80,
+      rotation: 0,
+      color: item.defaultColor ?? '#A0855B',
+    });
+  };
+
   return (
-    <div style={{
-      padding: '1rem',
-      borderRight: '1px solid #e5e7eb',
-      width: '200px',
-      overflowY: 'auto',
-      background: '#fff',
-    }}>
-      <h3 style={{ marginBottom: '0.75rem', fontSize: '13px', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        Catalogue
-      </h3>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-        {CATALOGUE.map((item) => (
-          <li
-            key={item.type}
-            draggable
-            onDragStart={(e) => {
-              e.dataTransfer.setData('furnitureType', JSON.stringify(item));
-              onDragStart && onDragStart(item);
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.6rem 0.5rem',
-              marginBottom: '0.4rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              cursor: 'grab',
-              background: '#f9fafb',
-              userSelect: 'none',
-            }}
+    <aside className="w-56 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+      <div className="p-3 border-b border-gray-100">
+        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Furniture</h2>
+        <input
+          type="search"
+          placeholder="Search…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full text-xs border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+        />
+      </div>
+
+      <div className="flex gap-1 px-2 py-2 border-b border-gray-100 flex-wrap">
+        {CATEGORIES.map((c) => (
+          <button
+            key={c}
+            onClick={() => setCategory(c)}
+            className={`text-xs px-2 py-0.5 rounded-full border transition ${
+              category === c
+                ? 'bg-indigo-600 text-white border-indigo-600'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+            }`}
           >
-            <span style={{ fontSize: '1.3rem', lineHeight: 1 }}>{item.icon}</span>
-            <div>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#111827' }}>{item.label}</div>
-              <div style={{ fontSize: '11px', color: '#9ca3af' }}>{item.w} × {item.h} cm</div>
-            </div>
-          </li>
+            {c}
+          </button>
         ))}
-      </ul>
-    </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-2 space-y-1">
+        {filtered.length === 0 ? (
+          <p className="text-xs text-gray-400 text-center py-4">No items found</p>
+        ) : (
+          filtered.map((item) => (
+            <button
+              key={item._id}
+              onClick={() => handleAdd(item)}
+              className="w-full text-left px-3 py-2 rounded-lg hover:bg-indigo-50 transition group"
+            >
+              <span className="block text-sm font-medium text-gray-700 group-hover:text-indigo-700">
+                {item.name}
+              </span>
+              <span className="block text-xs text-gray-400">{item.category}</span>
+            </button>
+          ))
+        )}
+      </div>
+    </aside>
   );
 };
 
