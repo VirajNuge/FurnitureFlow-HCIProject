@@ -1,18 +1,17 @@
 {
-  "name": "furniture-flow",
-  "version": "0.1.0",
-  "description": "FurnitureFlow (RoomVista 3D) - MERN Stack App",
+  "name": "furnitureflow",
+  "version": "1.0.0",
+  "description": "FurnitureFlow – 3D Room Designer (PUSL 3122 HCI Project)",
   "private": true,
   "scripts": {
-    "server": "npm run dev --prefix server",
-    "client": "npm run dev --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server"
   },
-  "keywords": ["furniture", "room", "3d", "mern"],
-  "author": "VirajNuge",
-  "license": "MIT",
-  "type": "commonjs",
-  "dependencies": {
-    "concurrently": "^9.2.1"
-  }
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["room-designer", "3d", "hci", "mern"],
+  "author": "FurnitureFlow Team",
+  "license": "MIT"
 }
