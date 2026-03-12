@@ -15,6 +15,7 @@ const Canvas2D = () => {
   const { snapPoint } = useSnapGrid(GRID_SIZE);
   const { isDragging, onDragStart, onDragEnd } = useDrag();
   const stageRef = useRef();
+  const transformerRef = useRef();
 
   const [selection, setSelection] = useState(null);
   const [selecting, setSelecting] = useState(false);
@@ -43,8 +44,18 @@ const Canvas2D = () => {
   );
 
   const handleStageMouseDown = useCallback((e) => {
-    if (e.target !== e.target.getStage()) return;
+    // Only deselect when clicking directly on the stage background
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (!clickedOnEmpty) return;
+
     selectItem(null);
+
+    // Explicitly detach transformer so handles disappear immediately
+    if (transformerRef.current) {
+      transformerRef.current.nodes([]);
+      transformerRef.current.getLayer()?.batchDraw();
+    }
+
     const pos = stageRef.current.getPointerPosition();
     setSelection({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y });
     setSelecting(true);
