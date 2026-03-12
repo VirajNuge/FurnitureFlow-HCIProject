@@ -108,3 +108,11 @@ Open [http://localhost:5173](http://localhost:5173).
 ## License
 
 MIT
+
+---
+
+## Version
+
+**v1.0.0** – Final submission build (March 12, 2026)
+
+> PUSL 3122 Human-Computer Interaction – Group Project submission.
