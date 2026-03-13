@@ -25,3 +25,8 @@ npm-debug.log*
 
 # Vite
 .vite/
+
+# Dev / helper scripts (not for repo)
+gc.sh
+dev-server.log
+test-runner.mjs

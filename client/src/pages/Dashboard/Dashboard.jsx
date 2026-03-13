@@ -29,7 +29,7 @@ const Dashboard = () => {
     const token = localStorage.getItem('token');
     fetch(`${API}/api/designs`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
-      .then((d) => { setDesigns(Array.isArray(d) ? d : []); setLoading(false); })
+      .then((d) => { setDesigns(Array.isArray(d) ? d : Array.isArray(d?.designs) ? d.designs : []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

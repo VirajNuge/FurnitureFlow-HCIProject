@@ -7,21 +7,28 @@ const snap = (v) => Math.round(v / GRID) * GRID;
  * Places items row by row within room bounds.
  * Returns a new array with updated x, y values.
  */
-export const autoArrange = (items, room = { x: 50, y: 50, width: 700, height: 500 }) => {
+export const autoArrange = (items, room = { x: 0, y: 0, width: 700, depth: 500 }) => {
   const arranged = [];
-  let curX = room.x + PADDING;
-  let curY = room.y + PADDING;
+  let curX = (room.x ?? 0) + PADDING;
+  let curY = (room.y ?? 0) + PADDING;
   let rowHeight = 0;
 
+  const roomRight = (room.x ?? 0) + room.width - PADDING;
+  const roomW = item => item.width ?? 80;
+  const roomH = item => item.height ?? 80;
+
   for (const item of items) {
-    if (curX + item.w > room.x + room.width - PADDING) {
-      curX = room.x + PADDING;
+    const iw = roomW(item);
+    const ih = roomH(item);
+
+    if (curX + iw > roomRight) {
+      curX = (room.x ?? 0) + PADDING;
       curY += rowHeight + PADDING;
       rowHeight = 0;
     }
     arranged.push({ ...item, x: snap(curX), y: snap(curY) });
-    curX += item.w + PADDING;
-    rowHeight = Math.max(rowHeight, item.h);
+    curX += iw + PADDING;
+    rowHeight = Math.max(rowHeight, ih);
   }
 
   return arranged;

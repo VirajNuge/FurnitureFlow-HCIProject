@@ -8,7 +8,11 @@ const useAuthStore = create((set) => ({
   isLoading: false,
   error: null,
 
-  register: async (name, email, password) => {
+  get isAuthenticated() {
+    return !!localStorage.getItem('token');
+  },
+
+  register: async ({ name, email, password }) => {
     set({ isLoading: true, error: null });
     try {
       const res = await fetch(`${API}/api/auth/register`, {
@@ -18,7 +22,10 @@ const useAuthStore = create((set) => ({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      set({ isLoading: false });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+      set({ user: data.user, token: data.token, isLoading: false });
       return data;
     } catch (err) {
       set({ isLoading: false, error: err.message });
@@ -26,7 +33,7 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  login: async (email, password) => {
+  login: async ({ email, password }) => {
     set({ isLoading: true, error: null });
     try {
       const res = await fetch(`${API}/api/auth/login`, {
@@ -38,6 +45,7 @@ const useAuthStore = create((set) => ({
       if (!res.ok) throw new Error(data.message);
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+      if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
       set({ user: data.user, token: data.token, isLoading: false });
       return data;
     } catch (err) {
@@ -47,8 +55,9 @@ const useAuthStore = create((set) => ({
   },
 
   logout: () => {
-    localStorage.removeItem('user');
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     set({ user: null, token: null });
   },
 
@@ -60,4 +69,5 @@ const useAuthStore = create((set) => ({
   clearError: () => set({ error: null }),
 }));
 
+export { useAuthStore };
 export default useAuthStore;

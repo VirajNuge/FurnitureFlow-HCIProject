@@ -1,10 +1,10 @@
-import express from 'express';
-import { submitFeedback, getFeedback } from '../controllers/feedbackController.js';
-import { protect } from '../middleware/authMiddleware.js';
+const express = require('express');
+const { createFeedback, getFeedback } = require('../controllers/feedbackController');
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.post('/', protect, submitFeedback);
+router.post('/', protect, createFeedback);
 router.get('/', protect, getFeedback);
 
-export default router;
+module.exports = router;

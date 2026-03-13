@@ -1,6 +1,7 @@
-import express from 'express';
-import { createDesign, getDesign, listDesigns, updateDesign, deleteDesign } from '../controllers/designController.js';
-import { protect } from '../middleware/authMiddleware.js';
+const express = require('express');
+const { createDesign, getDesign, listDesigns, updateDesign, deleteDesign } = require('../controllers/designController');
+const { protect } = require('../middleware/authMiddleware');
+const Design = require('../models/Design');
 
 const router = express.Router();
 
@@ -8,11 +9,8 @@ router.get('/', protect, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 20;
   const skip = (page - 1) * limit;
-  const { userId } = req;
 
-  // Delegate to listDesigns but with pagination
   try {
-    const Design = (await import('../models/Design.js')).default;
     const total = await Design.countDocuments({ userId: req.user._id });
     const designs = await Design.find({ userId: req.user._id })
       .sort({ updatedAt: -1 })
@@ -29,4 +27,4 @@ router.get('/:id', protect, getDesign);
 router.put('/:id', protect, updateDesign);
 router.delete('/:id', protect, deleteDesign);
 
-export default router;
+module.exports = router;

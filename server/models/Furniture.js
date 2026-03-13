@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const furnitureSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -16,4 +16,4 @@ const furnitureSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const Furniture = mongoose.model('Furniture', furnitureSchema);
-export default Furniture;
+module.exports = Furniture;

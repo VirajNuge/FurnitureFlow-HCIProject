@@ -1,4 +1,4 @@
-export const validateRegister = (req, res, next) => {
+const validateRegister = (req, res, next) => {
   const { name, email, password } = req.body;
   const errors = [];
   if (!name || name.trim().length < 2) errors.push('Name must be at least 2 characters');
@@ -8,8 +8,10 @@ export const validateRegister = (req, res, next) => {
   next();
 };
 
-export const validateLogin = (req, res, next) => {
+const validateLogin = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
   next();
 };
+
+module.exports = { validateRegister, validateLogin };

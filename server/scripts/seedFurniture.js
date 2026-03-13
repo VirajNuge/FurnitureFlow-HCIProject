@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import Furniture from '../models/Furniture.js';
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const Furniture = require('../models/Furniture');
 
 dotenv.config();
 

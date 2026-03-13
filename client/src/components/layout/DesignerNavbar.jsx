@@ -1,7 +1,6 @@
 import React from 'react';
-import ViewToggle from '../ui/ViewToggle';
 
-const DesignerNavbar = ({ designName, onSave, onUndo, onRedo, onToggleView, view, onAutoArrange }) => {
+const DesignerNavbar = ({ designName, onSave, onUndo, onRedo, onOpenRoomSetup, onAutoArrange }) => {
   return (
     <header style={{
       height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -13,7 +12,9 @@ const DesignerNavbar = ({ designName, onSave, onUndo, onRedo, onToggleView, view
         <span style={{ color: '#94a3b8', fontSize: '13px' }}>{designName || 'Untitled Design'}</span>
       </div>
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-        <ViewToggle view={view} onToggle={onToggleView} />
+        <button onClick={onOpenRoomSetup} title="Room Setup" style={{ background: '#334155', color: '#fff', border: 'none', padding: '0.35rem 0.75rem', borderRadius: '5px', cursor: 'pointer', fontSize: '13px' }}>
+          🏠 Room
+        </button>
         <button onClick={onAutoArrange} title="Auto Arrange" style={{ background: '#334155', color: '#fff', border: 'none', padding: '0.35rem 0.75rem', borderRadius: '5px', cursor: 'pointer', fontSize: '13px' }}>
           ⚡ Arrange
         </button>

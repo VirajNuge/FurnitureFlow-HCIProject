@@ -1,11 +1,14 @@
 import React from 'react';
 import { Rect } from 'react-konva';
 
-const RoomBoundary = ({ x = 50, y = 50, width = 600, height = 500 }) => {
+const RoomBoundary = ({ room, scaleX = 1, scaleY = 1 }) => {
+  const width = (room?.width ?? 700) * scaleX;
+  const height = (room?.depth ?? 500) * scaleY;
+
   return (
     <Rect
-      x={x}
-      y={y}
+      x={0}
+      y={0}
       width={width}
       height={height}
       fill="#fafafa"

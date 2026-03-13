@@ -1,14 +1,33 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './components/layout/ProtectedRoute';
+import Toast from './components/ui/Toast';
+import HomePage from './pages/Home/HomePage';
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Designer from './pages/Designer/Designer';
+import FeedbackDashboard from './pages/Admin/FeedbackDashboard';
 
 function App() {
   return (
     <Router>
+      <Toast />
       <Routes>
-        <Route path="/" element={<div>Home</div>} />
-        <Route path="/login" element={<div>Login</div>} />
-        <Route path="/register" element={<div>Register</div>} />
-        <Route path="/dashboard" element={<div>Dashboard</div>} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/designer" element={<Designer />} />
+          <Route path="/designer/:id" element={<Designer />} />
+          <Route path="/admin/feedback" element={<FeedbackDashboard />} />
+        </Route>
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

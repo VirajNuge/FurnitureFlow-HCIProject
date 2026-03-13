@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const roomSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -9,4 +9,4 @@ const roomSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const Room = mongoose.model('Room', roomSchema);
-export default Room;
+module.exports = Room;

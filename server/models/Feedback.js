@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const feedbackSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -7,4 +7,4 @@ const feedbackSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const Feedback = mongoose.model('Feedback', feedbackSchema);
-export default Feedback;
+module.exports = Feedback;

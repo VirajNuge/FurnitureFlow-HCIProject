@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 
 const inputStyle = {
   width: '100%', padding: '0.6rem 0.75rem', marginTop: '0.25rem',
@@ -10,17 +11,28 @@ const inputStyle = {
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const login = useAuthStore((s) => s.login);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) {
       setError('Email and password are required');
       return;
     }
     setError('');
-    console.log('Login submit', form);
+    setLoading(true);
+    try {
+      await login({ email: form.email, password: form.password });
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'Invalid email or password');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,8 +50,8 @@ const Login = () => {
             <label style={{ fontSize: '13px', fontWeight: '600' }}>Password</label>
             <input style={inputStyle} name="password" type="password" placeholder="••••••••" value={form.password} onChange={handleChange} />
           </div>
-          <button type="submit" style={{ width: '100%', padding: '0.7rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
-            Sign In
+          <button type="submit" disabled={loading} style={{ width: '100%', padding: '0.7rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
+            {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
         <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '13px', color: '#6b7280' }}>
