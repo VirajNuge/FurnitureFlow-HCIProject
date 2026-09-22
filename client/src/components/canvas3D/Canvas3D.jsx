@@ -56,9 +56,9 @@ const Canvas3D = () => {
 
           {/* Inner Suspense catches individual model/texture loads */}
           <Suspense fallback={<SceneFallback />}>
-            <Room3D width={room.width} depth={room.depth} height={room.height} />
+            <Room3D width={room.width} depth={room.depth} height={room.height} wallColor={room.wallColor} floorTexture={room.floorTexture} />
             {furniture.map((f) => (
-              <Furniture3D key={f.id} item={f} />
+              <Furniture3D key={f.id} item={f} room={room} />
             ))}
             <ContactShadows
               position={[0, -0.01, 0]}

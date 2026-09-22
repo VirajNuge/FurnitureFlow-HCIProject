@@ -10,7 +10,7 @@ const FeedbackDashboard = () => {
 
   useEffect(() => {
     getFeedback()
-      .then(({ data }) => setFeedback(Array.isArray(data) ? data : []))
+      .then(({ data }) => setFeedback(Array.isArray(data) ? data : data.feedback || []))
       .catch(() => setError('Failed to load feedback.'))
       .finally(() => setLoading(false));
   }, []);

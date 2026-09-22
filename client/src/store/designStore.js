@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import api from '../api/apiClient';
 
 const MAX_HISTORY = 50;
 
@@ -30,9 +31,25 @@ const useDesignStore = create((set, get) => ({
   // ── Setters ────────────────────────────────────────────────────────────
   setDesignName: (name) => set({ designName: name }),
 
-  setRoom: (room) => set({ room }),
+  resetDesign: () => set({
+    designName: 'Untitled Design',
+    currentDesignId: null,
+    isSaving: false,
+    room: { ...DEFAULT_ROOM },
+    furniture: [],
+    selectedId: null,
+    history: [],
+    future: [],
+  }),
+
+  setRoom: (room) => set({ room: { ...DEFAULT_ROOM, ...room } }),
 
   setFurniture: (furniture) => set({ furniture, history: [], future: [] }),
+
+  replaceFurniture: (furniture) => {
+    const prev = get().furniture;
+    set({ furniture, history: [...get().history, prev].slice(-MAX_HISTORY), future: [] });
+  },
 
   selectItem: (id) => set({ selectedId: id }),
 
@@ -105,24 +122,16 @@ const useDesignStore = create((set, get) => ({
   saveDesign: async (name) => {
     set({ isSaving: true });
     const { furniture, room, currentDesignId } = get();
-    const token = localStorage.getItem('token');
     try {
-      const method = currentDesignId ? 'PUT' : 'POST';
-      const url = currentDesignId
-        ? `/api/designs/${currentDesignId}`
-        : '/api/designs';
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name: name ?? get().designName, room, furniture }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      const payload = { name: name ?? get().designName, room, furniture };
+      const { data } = currentDesignId
+        ? await api.put(`/designs/${currentDesignId}`, payload)
+        : await api.post('/designs', payload);
       set({ currentDesignId: data._id, designName: data.name, isSaving: false });
       return data;
     } catch (err) {
       set({ isSaving: false });
-      throw err;
+      throw new Error(err.response?.data?.message || err.message || 'Unable to save design');
     }
   },
 }));

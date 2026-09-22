@@ -22,6 +22,7 @@ const Navbar = () => {
           <>
             <Link role="menuitem" to="/dashboard" style={{ fontSize: '14px', color: '#374151', textDecoration: 'none' }}>Dashboard</Link>
             <Link role="menuitem" to="/designer" style={{ fontSize: '14px', color: '#374151', textDecoration: 'none' }}>New Design</Link>
+            {user.role === 'admin' && <Link role="menuitem" to="/admin/feedback" style={{ fontSize: '14px', color: '#374151', textDecoration: 'none' }}>Feedback</Link>}
             <button
               role="menuitem"
               onClick={handleLogout}

@@ -25,7 +25,7 @@ const PropertiesSidebar = () => {
 
   const handleField = (field, value) => {
     if (!selected) return;
-    const numericFields = ['x', 'y', 'width', 'height', 'rotation'];
+    const numericFields = ['x', 'y', 'width', 'depth', 'height', 'rotation'];
     updateFurniture({
       ...selected,
       [field]: numericFields.includes(field) ? parseFloat(value) || 0 : value,
@@ -64,9 +64,9 @@ const PropertiesSidebar = () => {
 
         {/* Size */}
         <div className="mb-3">
-          <p className="text-xs text-gray-400 mb-1">Size (cm)</p>
+          <p className="text-xs text-gray-400 mb-1">Footprint (cm)</p>
           <div className="grid grid-cols-2 gap-1">
-            {['width', 'height'].map((dim) => (
+            {['width', 'depth'].map((dim) => (
               <label key={dim} className="flex flex-col text-xs">
                 <span className="text-gray-500 mb-0.5">{dim === 'width' ? 'W' : 'D'}</span>
                 <input type="number" value={Math.round(selected[dim])} step={1} min={10}
@@ -76,6 +76,13 @@ const PropertiesSidebar = () => {
             ))}
           </div>
         </div>
+
+        <label className="flex flex-col text-xs mb-3">
+          <span className="text-gray-400 mb-1">Height (cm)</span>
+          <input type="number" value={Math.round(selected.height ?? 80)} step={1} min={10}
+            onChange={(e) => handleField('height', e.target.value)}
+            className="border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+        </label>
 
         {/* Rotation */}
         <div className="mb-3">

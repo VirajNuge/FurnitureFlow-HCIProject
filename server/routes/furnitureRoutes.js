@@ -1,9 +1,8 @@
-import express from 'express';
-import { getAllFurniture } from '../controllers/furnitureController.js';
-import { protect } from '../middleware/authMiddleware.js';
+const express = require('express');
+const { getAllFurniture } = require('../controllers/furnitureController');
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
-
 router.get('/', protect, getAllFurniture);
 
-export default router;
+module.exports = router;

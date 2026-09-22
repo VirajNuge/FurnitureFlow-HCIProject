@@ -23,8 +23,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/designer" element={<Designer />} />
           <Route path="/designer/:id" element={<Designer />} />
-          <Route path="/admin/feedback" element={<FeedbackDashboard />} />
         </Route>
+        <Route path="/admin/feedback" element={<ProtectedRoute adminOnly><FeedbackDashboard /></ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

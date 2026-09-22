@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useToastStore } from '../../store/toastStore';
+import useToastStore from '../../store/toastStore';
+import api from '../../api/apiClient';
 
 const FeedbackModal = ({ isOpen, onClose, designId }) => {
   const [rating, setRating] = useState(0);
@@ -15,12 +16,7 @@ const FeedbackModal = ({ isOpen, onClose, designId }) => {
     if (comment.trim().length < 5) { setError('Comment must be at least 5 characters.'); return; }
     setSubmitting(true);
     try {
-      const res = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
-        body: JSON.stringify({ designId, rating, comment }),
-      });
-      if (!res.ok) throw new Error('Submission failed');
+      await api.post('/feedback', { designId, rating, comment });
       addToast('Feedback submitted!', 'success');
       setRating(0); setComment('');
       onClose();

@@ -38,8 +38,10 @@ const FurnitureNode = ({ item, isSelected, onSelect, onChange }) => {
     const node = shapeRef.current;
     const cx = node.x() + item.width / 2;
     const cy = node.y() + item.height / 2;
-    const dx = e.evt.clientX - cx;
-    const dy = e.evt.clientY - cy;
+    const pointer = node.getStage()?.getPointerPosition();
+    if (!pointer) return;
+    const dx = pointer.x - cx;
+    const dy = pointer.y - cy;
     const angle = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
     onChange({ ...item, rotation: angle });
   };
@@ -48,6 +50,7 @@ const FurnitureNode = ({ item, isSelected, onSelect, onChange }) => {
     <>
       <Group
         ref={shapeRef}
+        id={item.id}
         x={item.x}
         y={item.y}
         width={item.width}

@@ -15,5 +15,8 @@ const furnitureSchema = new mongoose.Schema({
   tags: { type: [String], default: [] },
 }, { timestamps: true });
 
+furnitureSchema.index({ type: 1, name: 1 });
+furnitureSchema.index({ tags: 1 });
+
 const Furniture = mongoose.model('Furniture', furnitureSchema);
 module.exports = Furniture;

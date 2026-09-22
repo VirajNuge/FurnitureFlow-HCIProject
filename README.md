@@ -252,13 +252,14 @@ npm install --prefix server
 
 ### 2 — Configure environment
 
-Create `server/.env` (copy from `server/.env.example` if present):
+Create `server/.env` by copying `server/.env.example`:
 
 ```env
 PORT=5000
+CLIENT_URL=http://localhost:5173
 MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/furnitureflow
-JWT_SECRET=your_jwt_secret_here
-JWT_REFRESH_SECRET=your_refresh_secret_here
+JWT_SECRET=replace-with-a-long-access-token-secret
+JWT_REFRESH_SECRET=replace-with-a-different-long-refresh-token-secret
 NODE_ENV=development
 ```
 
@@ -266,6 +267,9 @@ NODE_ENV=development
 
 ```bash
 node server/scripts/seedFurniture.js
+
+# If an older database uses Room.length, normalize it once
+node server/scripts/migrateRooms.js
 ```
 
 ### 4 — Run in development
@@ -315,8 +319,20 @@ npm start              # Serves the Express API (serve client/dist statically if
 | DELETE | `/api/designs/:id` | ✓ | Delete design |
 | GET | `/api/rooms` | ✓ | List room configs |
 | POST | `/api/rooms` | ✓ | Create room config |
+| GET | `/api/rooms/:id` | ✓ | Load an owned room config |
+| PUT | `/api/rooms/:id` | ✓ | Update an owned room config |
 | POST | `/api/feedback` | ✓ | Submit feedback |
 | GET | `/api/feedback` | ✓ Admin | List all feedback (date range filter) |
+| GET | `/health` | — | API health check |
+
+## Quality checks
+
+```bash
+npm test
+npm run build
+```
+
+The server requires `MONGO_URI`, `JWT_SECRET`, and `JWT_REFRESH_SECRET` at startup. Refresh tokens are rotated and revoked when a newer token is issued.
 
 ---
 

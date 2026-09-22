@@ -74,7 +74,7 @@ const Canvas2D = () => {
     const selBox = { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1) };
     if (selBox.w > 5 && selBox.h > 5) {
       const hit = furniture.filter((f) => {
-        const fx = f.x * scaleX, fy = f.y * scaleY, fw = f.width * scaleX, fh = f.height * scaleY;
+        const fx = f.x * scaleX, fy = f.y * scaleY, fw = f.width * scaleX, fh = (f.depth ?? f.height ?? 80) * scaleY;
         return fx < selBox.x + selBox.w && fx + fw > selBox.x && fy < selBox.y + selBox.h && fy + fh > selBox.y;
       });
       if (hit.length === 1) selectItem(hit[0].id);
@@ -83,8 +83,10 @@ const Canvas2D = () => {
   }, [selection, furniture, scaleX, scaleY, selectItem]);
 
   const handleFurnitureChange = (updated) => {
+    const width = Math.max(20, updated.width ?? 80);
+    const depth = Math.max(20, updated.depth ?? updated.height ?? 80);
     const snapped = snapPoint({ x: updated.x, y: updated.y });
-    updateFurniture({ ...updated, ...snapped });
+    updateFurniture({ ...updated, width, depth, x: Math.max(0, Math.min(snapped.x, room.width - width)), y: Math.max(0, Math.min(snapped.y, room.depth - depth)) });
   };
 
   const selRect = selection
@@ -102,12 +104,12 @@ const Canvas2D = () => {
           {furniture.map((f) => (
             <FurnitureNode
               key={f.id}
-              item={{ ...f, x: f.x * scaleX, y: f.y * scaleY, width: f.width * scaleX, height: f.height * scaleY }}
+              item={{ ...f, x: f.x * scaleX, y: f.y * scaleY, width: f.width * scaleX, height: (f.depth ?? f.height ?? 80) * scaleY }}
               isSelected={f.id === selectedId}
               onSelect={() => selectItem(f.id)}
               onDragStart={onDragStart}
               onDragEnd={(e) => { onDragEnd(e); handleFurnitureChange({ ...f, x: e.target.x() / scaleX, y: e.target.y() / scaleY }); }}
-              onChange={(u) => handleFurnitureChange({ ...u, x: u.x / scaleX, y: u.y / scaleY, width: u.width / scaleX, height: u.height / scaleY })}
+              onChange={(u) => { const { height: canvasDepth, ...rest } = u; handleFurnitureChange({ ...rest, x: u.x / scaleX, y: u.y / scaleY, width: u.width / scaleX, depth: canvasDepth / scaleY }); }}
             />
           ))}
           {selRect && selecting && (

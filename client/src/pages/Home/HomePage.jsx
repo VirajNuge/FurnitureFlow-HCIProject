@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from '../../components/layout/Navbar';
 
 const features = [
   { icon: '🛋️', title: '2D Floor Planning', desc: 'Drag and drop furniture onto an interactive top-down canvas.' },
@@ -11,6 +12,7 @@ const features = [
 const HomePage = () => {
   return (
     <div style={{ fontFamily: 'sans-serif' }}>
+      <Navbar />
       {/* Hero */}
       <section style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '4rem 2rem', background: 'linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%)' }}>
         <h1 style={{ fontSize: '48px', fontWeight: '800', color: '#1e293b', marginBottom: '1rem', lineHeight: 1.2 }}>

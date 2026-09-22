@@ -1,34 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({ baseURL: '/api' });
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-api.interceptors.response.use(
-  (res) => res,
-  async (err) => {
-    if (err.response?.status === 401) {
-      const refresh = localStorage.getItem('refreshToken');
-      if (refresh) {
-        try {
-          const { data } = await axios.post('/api/auth/refresh', { refreshToken: refresh });
-          localStorage.setItem('token', data.token);
-          err.config.headers.Authorization = `Bearer ${data.token}`;
-          return api.request(err.config);
-        } catch {
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login';
-        }
-      }
-    }
-    return Promise.reject(err);
-  }
-);
+import api from './apiClient';
 
 /* ── Designs ─────────────────────────────────────────────────────────── */
 export const getDesigns = (page = 1, limit = 12) =>

@@ -4,7 +4,7 @@ import TexturedMaterial from './TexturedMaterial';
 
 const SCALE = 0.01;
 
-const Room3D = ({ width = 500, depth = 400, height = 280 }) => {
+const Room3D = ({ width = 500, depth = 400, height = 280, wallColor = '#f5f0e8', floorTexture = 'wood' }) => {
   const w = width * SCALE;
   const d = depth * SCALE;
   const h = height * SCALE;
@@ -24,13 +24,11 @@ const Room3D = ({ width = 500, depth = 400, height = 280 }) => {
     return geo;
   }, [w, d]);
 
-  const wallColor = '#f5f0e8';
-
   return (
     <group>
       {/* Floor */}
       <mesh geometry={floorGeo} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <TexturedMaterial textureId="wood" repeat={[w, d]} />
+        <TexturedMaterial textureId={floorTexture} repeat={[w, d]} />
       </mesh>
 
       {/* Back wall */}

@@ -1,10 +1,13 @@
-import express from 'express';
-import { createRoom, getRoom } from '../controllers/roomController.js';
-import { protect } from '../middleware/authMiddleware.js';
+const express = require('express');
+const { listRooms, createRoom, getRoom, updateRoom } = require('../controllers/roomController');
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.post('/', protect, createRoom);
-router.get('/:id', protect, getRoom);
+router.use(protect);
+router.get('/', listRooms);
+router.post('/', createRoom);
+router.get('/:id', getRoom);
+router.put('/:id', updateRoom);
 
-export default router;
+module.exports = router;

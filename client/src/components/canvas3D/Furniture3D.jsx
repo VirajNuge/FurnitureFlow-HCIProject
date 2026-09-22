@@ -16,24 +16,27 @@ const TYPE_DIMS = {
 
 const ROOM_SCALE = 0.01; // 1 px = 0.01 m
 
-const Furniture3D = ({ item }) => {
+const Furniture3D = ({ item, room = { width: 500, depth: 400 } }) => {
   const meshRef = useRef();
   const targetPos = useRef(new THREE.Vector3());
   const targetRot = useRef(0);
 
   const dims = TYPE_DIMS[item.type] || { w: 1, h: 1, d: 1 };
-  const hw = (item.width ?? dims.w / ROOM_SCALE) * ROOM_SCALE / 2;
-  const hd = (item.height ?? dims.d / ROOM_SCALE) * ROOM_SCALE / 2;
-  const hh = dims.h / 2;
+  const width = item.width ?? dims.w / ROOM_SCALE;
+  const depth = item.depth ?? dims.d / ROOM_SCALE;
+  const height = item.height ?? dims.h / ROOM_SCALE;
+  const hw = width * ROOM_SCALE / 2;
+  const hd = depth * ROOM_SCALE / 2;
+  const hh = height * ROOM_SCALE / 2;
 
   // Update target whenever item changes
   useEffect(() => {
     if (!item) return;
-    const x = ((item.x ?? 0) + (item.width ?? 0) / 2) * ROOM_SCALE - 2.5;
-    const z = ((item.y ?? 0) + (item.height ?? 0) / 2) * ROOM_SCALE - 2;
+    const x = ((item.x ?? 0) + width / 2) * ROOM_SCALE - room.width * ROOM_SCALE / 2;
+    const z = ((item.y ?? 0) + depth / 2) * ROOM_SCALE - room.depth * ROOM_SCALE / 2;
     targetPos.current.set(x, hh, z);
     targetRot.current = ((item.rotation ?? 0) * Math.PI) / 180;
-  }, [item, hh]);
+  }, [item, hh, width, depth, room]);
 
   // Lerp mesh toward target for smooth real-time updates
   useFrame(() => {
@@ -45,7 +48,7 @@ const Furniture3D = ({ item }) => {
 
   return (
     <mesh ref={meshRef} castShadow receiveShadow>
-      <boxGeometry args={[hw * 2, dims.h, hd * 2]} />
+      <boxGeometry args={[hw * 2, height * ROOM_SCALE, hd * 2]} />
       <TexturedMaterial
         color={item.color || '#A0855B'}
         textureId={item.textureId}

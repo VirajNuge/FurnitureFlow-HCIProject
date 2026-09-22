@@ -1,9 +1,12 @@
 import { create } from 'zustand';
+import api from '../api/apiClient';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const readUser = () => {
+  try { return JSON.parse(localStorage.getItem('user')) || null; } catch { return null; }
+};
 
 const useAuthStore = create((set) => ({
-  user: JSON.parse(localStorage.getItem('user')) || null,
+  user: localStorage.getItem('token') ? readUser() : null,
   token: localStorage.getItem('token') || null,
   isLoading: false,
   error: null,
@@ -15,20 +18,14 @@ const useAuthStore = create((set) => ({
   register: async ({ name, email, password }) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await fetch(`${API}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      const { data } = await api.post('/auth/register', { name, email, password });
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
       set({ user: data.user, token: data.token, isLoading: false });
       return data;
     } catch (err) {
-      set({ isLoading: false, error: err.message });
+      set({ isLoading: false, error: err.response?.data?.message || err.message });
       throw err;
     }
   },
@@ -36,25 +33,21 @@ const useAuthStore = create((set) => ({
   login: async ({ email, password }) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await fetch(`${API}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      const { data } = await api.post('/auth/login', { email, password });
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
       set({ user: data.user, token: data.token, isLoading: false });
       return data;
     } catch (err) {
-      set({ isLoading: false, error: err.message });
+      set({ isLoading: false, error: err.response?.data?.message || err.message });
       throw err;
     }
   },
 
-  logout: () => {
+  logout: async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    try { if (refreshToken) await api.post('/auth/logout', { refreshToken }); } catch { /* local logout still completes */ }
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');

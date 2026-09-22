@@ -5,7 +5,7 @@ const Toast = () => {
   const { toasts, removeToast } = useToastStore();
 
   return (
-    <div style={{ position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 9999 }}>
+    <div style={{ position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 9999 }} role="status" aria-live="polite">
       {toasts.map((t) => (
         <div
           key={t.id}

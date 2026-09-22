@@ -4,7 +4,7 @@ const ViewToggle = ({ view, onToggle }) => {
   return (
     <div style={{ display: 'inline-flex', borderRadius: '6px', overflow: 'hidden', border: '1px solid #d1d5db' }}>
       <button
-        onClick={() => onToggle('2d')}
+        onClick={() => onToggle?.('2d')}
         style={{
           padding: '0.4rem 0.9rem',
           fontSize: '13px',
@@ -18,7 +18,7 @@ const ViewToggle = ({ view, onToggle }) => {
         2D
       </button>
       <button
-        onClick={() => onToggle('3d')}
+        onClick={() => onToggle?.('3d')}
         style={{
           padding: '0.4rem 0.9rem',
           fontSize: '13px',
